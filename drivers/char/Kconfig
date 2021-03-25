@@ -9,6 +9,13 @@ source "drivers/char/broadcom/Kconfig"
 
 source "drivers/tty/Kconfig"
 
+config DUMMY_CHAR
+	tristate "Dummy chardev driver for educational purposes"
+	help
+	  Say Y here to build the dummy chardev driver.
+	  To compile this driver as a module, choose M here: the module
+	  will be called dummy_char.
+
 config TTY_PRINTK
 	tristate "TTY driver to output user messages via printk"
 	depends on EXPERT && TTY
