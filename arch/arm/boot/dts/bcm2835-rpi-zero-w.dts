@@ -32,6 +32,11 @@
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&gpio 41 GPIO_ACTIVE_LOW>;
 	};
+
+	dummy_char {
+		compatible = "dummy-char";
+		status = "okay";
+	};
 };
 
 &gpio {

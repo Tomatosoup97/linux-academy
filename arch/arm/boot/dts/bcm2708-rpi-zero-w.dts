@@ -20,6 +20,11 @@
 		serial1 = &uart0;
 		mmc1 = &mmcnr;
 	};
+
+	dummy_char {
+		compatible = "dummy-char";
+		status = "okay";
+	};
 };
 
 &gpio {
