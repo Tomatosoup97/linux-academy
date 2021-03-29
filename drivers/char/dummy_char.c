@@ -5,25 +5,123 @@
  * Artur Rojek <ar@semihalf.com>
  */
 
+#include <linux/fs.h>
 #include <linux/kernel.h>
+#include <linux/miscdevice.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
 #include <linux/platform_device.h>
 
 struct dummy_char {
-	char buf[20];
+	struct miscdevice misc;
+	char __iomem *buf;
+	size_t buf_size;
+};
+
+static ssize_t dummy_char_read(struct file *file, char __user *user_buf,
+			       size_t size, loff_t *offset)
+{
+	struct dummy_char *priv;
+	ssize_t off, len;
+
+	priv = container_of(file->private_data, struct dummy_char, misc);
+
+	off = *offset;
+	len = min(priv->buf_size - off, size);
+	if (len <= 0)
+		return 0;
+
+	if (copy_to_user(user_buf, priv->buf + off, len))
+		return -EFAULT;
+
+	*offset += len;
+
+	return len;
+}
+
+static ssize_t dummy_char_write(struct file *file, const char __user *user_buf,
+				size_t size, loff_t *offset)
+{
+	struct dummy_char *priv;
+	ssize_t off, len;
+
+	priv = container_of(file->private_data, struct dummy_char, misc);
+
+	off = *offset;
+	len = min(priv->buf_size - off, size);
+	if (len <= 0)
+		return 0;
+
+	if (copy_from_user(priv->buf + off, user_buf, len))
+		return -EFAULT;
+
+	*offset += len;
+
+	return len;
+}
+
+static int dummy_char_release(struct inode *inode, struct file *file)
+{
+	file->private_data = NULL;
+
+	return 0;
+}
+
+const struct file_operations dummy_char_fops = {
+	.owner = THIS_MODULE,
+	.read = dummy_char_read,
+	.write = dummy_char_write,
+	.release = dummy_char_release,
 };
 
 static int dummy_char_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct dummy_char *priv;
+	struct device_node *mem_node;
+	struct resource res;
+	int ret;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
-	strncpy(priv->buf, "Hello world!", sizeof(priv->buf));
+	mem_node = of_parse_phandle(dev->of_node, "memory-region", 0);
+	if (!mem_node) {
+		dev_err(dev, "Unable to find a memory-region property\n");
+		return -ENODEV;
+	}
+
+	ret = of_address_to_resource(mem_node, 0, &res);
+	if (ret) {
+		dev_err(dev, "No memory address assigned to memory region\n");
+		return ret;
+	}
+
+	priv->buf_size = resource_size(&res);
+	if (!priv->buf_size) {
+		dev_err(dev, "Invalid memory region size\n");
+		return -EINVAL;
+	}
+
+	priv->buf = devm_ioremap_resource(&pdev->dev, &res);
+	if (IS_ERR(priv->buf)) {
+		dev_err(dev, "Unable to ioremap buffer memory\n");
+		return PTR_ERR((void *)priv->buf);
+	}
+
+	priv->misc.parent = dev;
+	priv->misc.name = "dummy";
+	priv->misc.minor = MISC_DYNAMIC_MINOR;
+	priv->misc.fops = &dummy_char_fops;
+
+	ret = misc_register(&priv->misc);
+	if (ret) {
+		dev_err(dev, "Unable to register misc device\n");
+		return ret;
+	}
 
 	dev_set_drvdata(dev, priv);
 
@@ -35,7 +133,7 @@ static int dummy_char_remove(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct dummy_char *priv = dev_get_drvdata(dev);
 
-	dev_info(dev, "priv->buf: %s\n", priv->buf);
+	misc_deregister(&priv->misc);
 
 	return 0;
 }

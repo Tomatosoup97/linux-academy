@@ -36,6 +36,7 @@
 	dummy_char {
 		compatible = "dummy-char";
 		status = "okay";
+		memory-region = <&dummy_char_reserved>;
 	};
 };
 
@@ -112,6 +113,13 @@
 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
 	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
 	status = "okay";
+};
+
+&rmem {
+	dummy_char_reserved: dummy_char_buf@4200000 {
+		reg = <0x4200000 0x1000>;
+		no-map;
+	};
 };
 
 &sdhci {

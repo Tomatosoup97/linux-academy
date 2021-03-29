@@ -24,6 +24,7 @@
 	dummy_char {
 		compatible = "dummy-char";
 		status = "okay";
+		memory-region = <&dummy_char_reserved>;
 	};
 };
 
@@ -88,6 +89,13 @@
 	pinctrl-0 = <&sdio_pins>;
 	bus-width = <4>;
 	status = "okay";
+};
+
+&rmem {
+	dummy_char_reserved: dummy_char_buf@4200000 {
+		reg = <0x4200000 0x1000>;
+		no-map;
+	};
 };
 
 &uart0 {
