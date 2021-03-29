@@ -14,6 +14,9 @@
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 
+#define DUMMY_CHAR_ERASE	_IO('d', 0x01)
+#define DUMMY_CHAR_SIZE		_IOR('d', 0x02, size_t)
+
 struct dummy_char {
 	struct miscdevice misc;
 	char __iomem *buf;
@@ -69,11 +72,35 @@ static int dummy_char_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+static long dummy_char_ioctl(struct file *file, unsigned int cmd,
+			     unsigned long arg)
+{
+	struct dummy_char *priv;
+
+	priv = container_of(file->private_data, struct dummy_char, misc);
+
+	switch (cmd) {
+	case DUMMY_CHAR_ERASE:
+		memset_io(priv->buf, 0, priv->buf_size);
+		break;
+	case DUMMY_CHAR_SIZE:
+		if (copy_to_user((void __user *)arg, &priv->buf_size,
+				 sizeof(size_t)))
+			return -EFAULT;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 const struct file_operations dummy_char_fops = {
 	.owner = THIS_MODULE,
 	.read = dummy_char_read,
 	.write = dummy_char_write,
 	.release = dummy_char_release,
+	.unlocked_ioctl = dummy_char_ioctl,
 };
 
 static int dummy_char_probe(struct platform_device *pdev)
