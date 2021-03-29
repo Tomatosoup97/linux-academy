@@ -28,6 +28,11 @@
 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
 		};
 	};
+
+	dummy_char {
+		compatible = "dummy-char";
+		status = "okay";
+	};
 };
 
 &bt {

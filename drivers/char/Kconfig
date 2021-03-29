@@ -11,6 +11,7 @@ source "drivers/tty/Kconfig"
 
 config DUMMY_CHAR
 	tristate "Dummy chardev driver for educational purposes"
+	depends on OF
 	help
 	  Say Y here to build the dummy chardev driver.
 	  To compile this driver as a module, choose M here: the module
