@@ -23,6 +23,7 @@
 	dummy_char {
 		compatible = "dummy-char";
 		status = "okay";
+		memory-region = <&dummy_char_reserved>;
 	};
 };
 
@@ -160,6 +161,13 @@
 	brcmf: wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";
+	};
+};
+
+&rmem {
+	dummy_char_reserved: dummy_char_buf@4200000 {
+		reg = <0x4200000 0x1000>;
+		no-map;
 	};
 };
 
