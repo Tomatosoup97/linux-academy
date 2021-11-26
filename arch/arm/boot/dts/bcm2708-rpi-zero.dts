@@ -13,6 +13,12 @@
 	chosen {
 		bootargs = "coherent_pool=1M snd_bcm2835.enable_compat_alsa=0 snd_bcm2835.enable_hdmi=1";
 	};
+
+	dummy_char {
+		compatible = "dummy-char";
+		status = "okay";
+		memory-region = <&dummy_char_reserved>;
+	};
 };
 
 &gpio {
@@ -44,6 +50,13 @@
 	audio_pins: audio_pins {
 		brcm,pins = <>;
 		brcm,function = <>;
+	};
+};
+
+&rmem {
+	dummy_char_reserved: dummy_char_buf@4200000 {
+		reg = <0x4200000 0x1000>;
+		no-map;
 	};
 };
 
