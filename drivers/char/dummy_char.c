@@ -111,6 +111,8 @@ static int dummy_char_probe(struct platform_device *pdev)
 	struct resource res;
 	int ret;
 
+	dev_info(dev, "dummy_char_probe enter\n");
+
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
@@ -151,6 +153,8 @@ static int dummy_char_probe(struct platform_device *pdev)
 	}
 
 	dev_set_drvdata(dev, priv);
+
+	dev_info(dev, "dummy_char_probe exit\n");
 
 	return 0;
 }

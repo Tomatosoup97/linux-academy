@@ -8,6 +8,12 @@
 / {
 	compatible = "raspberrypi,model-zero", "brcm,bcm2835";
 	model = "Raspberry Pi Zero";
+
+	dummy_char {
+		compatible = "dummy-char";
+		status = "okay";
+		memory-region = <&dummy_char_reserved>;
+	};
 };
 
 &gpio {
@@ -104,6 +110,13 @@
 	audio_pins: audio_pins {
 		brcm,pins = <>;
 		brcm,function = <>;
+	};
+};
+
+&rmem {
+	dummy_char_reserved: dummy_char_buf@4200000 {
+		reg = <0x4200000 0x1000>;
+		no-map;
 	};
 };
 
