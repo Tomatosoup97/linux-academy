@@ -166,5 +166,7 @@ x509.genkey
 # Documentation toolchain
 sphinx_*/
 
+<<<<<<< HEAD
 # Rust analyzer configuration
 /rust-project.json
+read_dummy

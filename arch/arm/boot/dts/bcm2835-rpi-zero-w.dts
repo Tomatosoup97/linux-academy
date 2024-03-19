@@ -34,6 +34,12 @@
 		status = "okay";
 		memory-region = <&dummy_char_reserved>;
 	};
+
+	my_dummy_char {
+		compatible = "my-dummy-char";
+		status = "okay";
+		memory-region = <&my_dummy_char_reserved>;
+	};
 };
 
 &bt {
@@ -119,6 +125,10 @@
 &rmem {
 	dummy_char_reserved: dummy_char_buf@4200000 {
 		reg = <0x4200000 0x1000>;
+		no-map;
+	};
+	my_dummy_char_reserved: my_dummy_char_buf@4200000 {
+		reg = <0x4201000 0x1000>;
 		no-map;
 	};
 };
