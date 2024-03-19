@@ -4,6 +4,7 @@
 #
 
 obj-$(CONFIG_DUMMY_CHAR)	+= dummy_char.o
+obj-$(CONFIG_MY_DUMMY_CHAR)	+= my_dummy_char.o
 obj-y				+= mem.o random.o
 obj-$(CONFIG_TTY_PRINTK)	+= ttyprintk.o
 obj-y				+= misc.o
