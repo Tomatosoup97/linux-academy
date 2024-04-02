@@ -16,6 +16,12 @@ struct dummy_char {
   char __iomem *buff;
 };
 
+struct dummy_char_file {
+  struct dummy_char *driver;
+  size_t buff_size;
+  char *buff;
+};
+
 static ssize_t my_dummy_char_read(
     struct file *file,
     char __user *user_buff,
@@ -73,9 +79,7 @@ static int my_dummy_char_release(struct inode *inode, struct file *file) {
 }
 
 static int my_dummy_char_open(struct inode *inode, struct file *file) {
-  int *p = NULL;
-
-  printk(KERN_NOTICE "my_dummy_char_open: %d\n", *p);
+  printk(KERN_NOTICE "my_dummy_char_open\n");
   return 0;
 }
 
@@ -110,6 +114,34 @@ static long my_dummy_char_ioctl(
   return 0;
 }
 
+loff_t my_dummy_char_llseek(struct file *file, loff_t offset, int whence) {
+  struct dummy_char *priv;
+  loff_t new_pos;
+
+  printk(KERN_NOTICE "my_dummy_char_llseek: offset=%lld, whence=%d\n", offset, whence);
+
+  priv = container_of(file->private_data, struct dummy_char, misc);
+
+  switch (whence) {
+    case SEEK_SET:
+      new_pos = offset;
+      break;
+    case SEEK_CUR:
+      new_pos = file->f_pos + offset;
+      break;
+    case SEEK_END:
+      new_pos = priv->buff_size + offset;
+      break;
+    default:
+      return -EINVAL;
+  }
+  if ((new_pos < 0) || (new_pos > priv->buff_size))
+    return -EINVAL;
+
+  file->f_pos = new_pos;
+  return new_pos;
+}
+
 const struct file_operations my_dummy_char_fops = {
   .owner = THIS_MODULE,
   .read = my_dummy_char_read,
@@ -117,6 +149,7 @@ const struct file_operations my_dummy_char_fops = {
   .write = my_dummy_char_write,
   .release = my_dummy_char_release,
   .unlocked_ioctl = my_dummy_char_ioctl,
+  .llseek = my_dummy_char_llseek,
 };
 
 static int my_dummy_char_probe(struct platform_device *pdev) {

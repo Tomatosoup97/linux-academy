@@ -1,5 +1,5 @@
-export IFEXT=wlp4s0
-export IFUSB=enp0s20f0u1i1
+export IFEXT=wlp0s20f3
+export IFUSB=enxeeddc7e6cefa
 
 echo "Setting up NAT for $IFUSB and $IFEXT"
 

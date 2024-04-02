@@ -25,6 +25,14 @@ config MY_DUMMY_CHAR
 	  To compile this driver as a module, choose M here: the module
 	  will be called my_dummy_char.
 
+config PROXY_CHAR
+	tristate "Proxy char driver"
+	depends on OF
+	help
+	  Say Y here to build the proxy char driver.
+	  To compile this driver as a module, choose M here: the module
+	  will be called proxy_char.
+
 config TTY_PRINTK
 	tristate "TTY driver to output user messages via printk"
 	depends on EXPERT && TTY
