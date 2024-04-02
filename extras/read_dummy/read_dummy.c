@@ -69,12 +69,13 @@ int main() {
     FILE *file;
 
     file = fopen(DEVICE_FILE, "r+");
-    fd = fileno(file);
 
     if (!file) {
         perror("Failed to open device file");
         return 1;
     }
+
+    fd = fileno(file);
     if (fd < 0) {
         perror("Failed to get file descriptor");
         return 1;
@@ -84,12 +85,8 @@ int main() {
     device_write(file);
     ioctl_device_read_size(fd);
 
-    fclose(file);
-
-    file = fopen(DEVICE_FILE, "r+");
-
-    if (!file) {
-        perror("Failed to open device file");
+    if (fseek(file, 0, SEEK_SET) != 0) {
+        perror("Error seeking to the beginning of the file");
         return 1;
     }
 
