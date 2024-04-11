@@ -40,6 +40,11 @@
 		status = "okay";
 		memory-region = <&my_dummy_char_reserved>;
 	};
+
+	proxy_char {
+		compatible = "proxy-char";
+		status = "okay";
+	};
 };
 
 &bt {
